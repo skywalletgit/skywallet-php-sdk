@@ -58,13 +58,13 @@ Webhook is defined to notify merchant about order status changes. It should be c
 
 ``` json
 {
-    transactionStatus: unverified,
-    orderStatus: fulfilled,
-    paymentId: "3a1a12cfcf01de09",
-    supportId: "TLIH2JXD",
-    invoiceNumber: "code_finalflow_po",
-    SKU: "98987ABC879798",
-    Signature: “asdf23qafds9j29ajfas9fj29fajsa9fj29fwajfao9j”
+    "transactionStatus": "unverified",
+    "orderStatus": "fulfilled",
+    "paymentId": "3a1a12cfcf01de09",
+    "supportId": "TLIH2JXD",
+    "invoiceNumber": "code_finalflow_po",
+    "SKU": "98987ABC879798",
+    "Signature": "asdf23qafds9j29ajfas9fj29fajsa9fj29fwajfao9j"
 }
 ```
 
@@ -72,7 +72,7 @@ Once all the transfers related to given order are verified (more than 10 blocks 
 
 ``` json
 {
-    success: true
+    "status": true
 }
 ```
 
@@ -80,7 +80,7 @@ Marking order as “failed” in case of getting following response: Http status
 
 ``` json
 {
-    success: false
+    "status": false
 }
 ```
 
