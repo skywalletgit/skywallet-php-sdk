@@ -3,7 +3,7 @@
 class SkyWallet{
     private $publicKey = "";
     private $token = "";
-    private $reqUrl = "https://app.skywallet.com:9018/api";
+    private $reqUrl = "https://app.skywallet.com/api";
 
     function __construct($args){
         if(!isset($args['publicKey'])){
@@ -56,7 +56,13 @@ class SkyWallet{
     }
 
     public function getExchangeRate($args){
+        if(!isset($args['base'])){
+            return self::errorMessage('base is required');
+        }
 
+        if(!isset($args['quote'])){
+            return self::errorMessage('quote is required');
+        }
         $requestOptions = $this->requestOptions('GET', '/rate/'.$args['base'].'/'.$args['quote'], '');
         $request = self::request($requestOptions);
         $request->status = (int) $request->status;
@@ -65,13 +71,26 @@ class SkyWallet{
 
     public function verify($sigdata){
 
-        $bodyhash = md5(json_encode($sigdata));
-        $sigvalid = openssl_verify($bodyhash, hex2bin($sigdata['signature']), $this->publicKey, OPENSSL_ALGO_SHA256);
+        if(!is_array($sigdata)) {
 
-        if($sigvalid){
-            return self::successMessage('Successful');
-        }else{
-            return self::errorMessage('Verification failed');
+            if(is_object($sigdata)) {
+                $sigdata = (array) $sigdata;
+            }else{
+                return self::errorMessage('Verification failed (Invalid data type)');
+            }
+
+        }
+
+        $signature = $sigdata['signature'];
+        unset($sigdata['signature']);
+
+        $bodyhash = md5(json_encode($sigdata));
+        $sigvalid = openssl_verify($bodyhash, hex2bin($signature), $this->publicKey, OPENSSL_ALGO_SHA256);
+
+        if($sigvalid === 1) {
+            return true;
+        } else {
+            return false;
         }
 
     }
@@ -115,7 +134,7 @@ class SkyWallet{
 
     static function errorMessage($message = "Unknown error", $errorCode = 552){
         $result = new stdClass();
-        $result->status = (int) false;
+        $result->status = false;
         $result->message = $message;
         $result->code = $errorCode;
         return $result;
@@ -123,7 +142,7 @@ class SkyWallet{
 
     static function successMessage($message = "Success"){
         $result = new stdClass();
-        $result->status = (int) true;
+        $result->status = true;
         $result->message = $message;
         return $result;
     }
